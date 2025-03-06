@@ -1,0 +1,103 @@
+specification {
+  element actor {
+    style {
+      shape person
+      color secondary
+    }
+  }
+  element system
+  element container {
+    style {
+      shape box
+      color primary
+    }
+  }
+  element database {
+    style {
+      shape cylinder
+      color tertiary
+    }
+  }
+  element queue {
+    style {
+      shape hexagon
+      color tertiary
+    }
+  }
+}
+
+model {
+  user = actor 'User' {
+    description 'Пользователь социальной сети'
+  }
+
+  softwareSystem = system 'Social Network' {
+    description 'Социальная сеть с микросервисной архитектурой'
+  }
+
+  ui = container 'Web/Mobile UI' {
+    description 'Веб и мобильное приложение для пользователей'
+    technology 'React, Flutter'
+  }
+
+  apiGateway = container 'API Gateway' {
+    description 'Шлюз для обработки входящих запросов и маршрутизации'
+    technology 'Nginx, Express'
+  }
+
+  userService = container 'User Service' {
+    description 'Сервис управления пользователями и подписками'
+    technology 'Spring Boot, PostgreSQL'
+  }
+
+  postService = container 'Post & Comment Service' {
+    description 'Сервис управления постами, комментариями и лайками'
+    technology 'Flask, PostgreSQL'
+  }
+
+  statsService = container 'Statistics Service' {
+    description 'Сервис сбора и анализа статистики'
+    technology 'Go, ClickHouse'
+  }
+
+  userDb = database 'User Database' {
+    description 'Хранение информации о пользователях и подписках'
+    technology 'PostgreSQL'
+  }
+
+  postDb = database 'Post Database' {
+    description 'Хранение постов, комментариев и лайков'
+    technology 'PostgreSQL'
+  }
+
+  statsDb = database 'Statistics Database' {
+    description 'Хранение данных о просмотрах, лайках, комментариях'
+    technology 'ClickHouse'
+  }
+
+  messageQueue = queue 'Message Broker' {
+    description 'Передача событий между сервисами'
+    technology 'Kafka / RabbitMQ'
+  }
+
+  user -> ui 'Использует'
+  ui -> apiGateway 'Отправляет запросы'
+  apiGateway -> userService 'Обрабатывает запросы по пользователям'
+  apiGateway -> postService 'Обрабатывает запросы по постам и комментариям'
+  apiGateway -> statsService 'Запрашивает статистику'
+
+  userService -> userDb 'Хранит пользователей'
+  postService -> postDb 'Хранит посты, комментарии, лайки'
+  statsService -> statsDb 'Хранит статистику'
+
+  postService -> messageQueue 'Публикует события (новый пост, новый лайк, новый комментарий)'
+  userService -> messageQueue 'Публикует события (новый пользователь, подписка)'
+  messageQueue -> statsService 'Передает события для анализа'
+}
+
+views {
+  view index {
+    title 'Social Network Architecture'
+    include *
+  }
+}
