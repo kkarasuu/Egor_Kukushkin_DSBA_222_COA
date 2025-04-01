@@ -1,0 +1,14 @@
+{
+  "name": "gateway",
+  "version": "1.0.0",
+  "description": "API Gateway for Social Network",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3",
+    "http-proxy-middleware": "^2.0.6"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

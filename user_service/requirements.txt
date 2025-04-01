@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+bcrypt
+PyJWT
+psycopg2-binary
+pydantic[email]
+python-dotenv
+pytest
+httpx
+uuid
+pytest-html
+sqlalchemy
+psycopg2-binary

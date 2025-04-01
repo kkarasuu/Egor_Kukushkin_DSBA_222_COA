@@ -1,0 +1,81 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./user_service/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  user_service:
+    build: ./user_service
+    container_name: user_service
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./user_service/.env
+    ports:
+      - "8000:8000"
+
+  user_service_tests:
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile.test
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/users
+    volumes:
+      - ./test_reports:/app/reports
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    restart: always
+    depends_on:
+      user_service:
+        condition: service_started
+    env_file:
+      - ./gateway/.env
+    ports:
+      - "3000:3000"
+
+  post_service:
+    build: ./post_service
+    container_name: post_service
+    restart: always
+    ports:
+      - "50051:50051"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  post_gateway:
+    build: ./post_gateway
+    container_name: post_gateway
+    restart: always
+    ports:
+      - "8001:8001"
+    depends_on:
+      post_service:
+        condition: service_started
+      user_service:
+        condition: service_started
+    environment:
+      GRPC_POST_SERVICE_HOST: post_service
+      GRPC_POST_SERVICE_PORT: 50051
+      USER_SERVICE_URL: http://user_service:8000
+
+volumes:
+  db_data:

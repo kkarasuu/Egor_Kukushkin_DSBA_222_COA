@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package post;
+
+message Post {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  int32 creator_id = 4;
+  string created_at = 5;
+  string updated_at = 6;
+  bool is_private = 7;
+  repeated string tags = 8;
+}
+
+message PostId {
+  int32 id = 1;
+  int32 user_id = 2;
+}
+
+message PostListRequest {
+  int32 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message PostListResponse {
+  repeated Post posts = 1;
+}
+
+message CreatePostRequest {
+  string title = 1;
+  string description = 2;
+  int32 creator_id = 3;
+  bool is_private = 4;
+  repeated string tags = 5;
+}
+
+message UpdatePostRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+  string title = 3;
+  string description = 4;
+  bool is_private = 5;
+  repeated string tags = 6;
+}
+
+message Empty {}
+
+service PostService {
+  rpc CreatePost(CreatePostRequest) returns (Post);
+  rpc GetPost(PostId) returns (Post);
+  rpc DeletePost(PostId) returns (Empty);
+  rpc UpdatePost(UpdatePostRequest) returns (Post);
+  rpc ListPosts(PostListRequest) returns (PostListResponse);
+}
